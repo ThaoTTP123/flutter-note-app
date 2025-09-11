@@ -1,5 +1,5 @@
+import '/app/controllers/note_controller.dart';
 import '/app/models/note.dart';
-import '/app/controllers/home_controller.dart';
 import '/app/models/user.dart';
 import '/app/networking/api_service.dart';
 
@@ -21,7 +21,8 @@ final Map<Type, dynamic> modelDecoders = {
 
   // User: (data) => User.fromJson(data),
 
-  List<Note>: (data) => List.from(data).map((json) => Note.fromJson(json)).toList(),
+  List<Note>: (data) =>
+      List.from(data).map((json) => Note.fromJson(json)).toList(),
 
   Note: (data) => Note.fromJson(data),
 };
@@ -47,7 +48,7 @@ final Map<Type, dynamic> apiDecoders = {
 | Learn more https://nylo.dev/docs/6.x/controllers
 |-------------------------------------------------------------------------- */
 final Map<Type, dynamic> controllers = {
-  HomeController: () => HomeController(),
-
   // ...
+
+  NoteController: () => NoteController(),
 };

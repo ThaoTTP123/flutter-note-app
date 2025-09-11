@@ -1,5 +1,6 @@
+import '../resources/pages/note_detail_page.dart';
 import '/resources/pages/not_found_page.dart';
-import '/resources/pages/home_page.dart';
+import '../resources/pages/notes_page.dart';
 import 'package:nylo_framework/nylo_framework.dart';
 
 /* App Router
@@ -19,18 +20,21 @@ import 'package:nylo_framework/nylo_framework.dart';
 | Learn more https://nylo.dev/docs/6.x/router
 |-------------------------------------------------------------------------- */
 
-appRouter() => nyRoutes((router) {
-      router.add(HomePage.path).initialRoute();
+appRouter() => nyRoutes(
+      (router) {
+        router.add(NotesPage.path).initialRoute();
 
-      // Add your routes here ...
-      // router.add(NewPage.path, transitionType: TransitionType.fade());
+        // Add your routes here ...
+        // router.add(NewPage.path, transitionType: TransitionType.fade());
 
-      // Example using grouped routes
-      // router.group(() => {
-      //   "route_guards": [AuthRouteGuard()],
-      //   "prefix": "/dashboard"
-      // }, (router) {
-      //
-      // });
-      router.add(NotFoundPage.path).unknownRoute();
-});
+        // Example using grouped routes
+        // router.group(() => {
+        //   "route_guards": [AuthRouteGuard()],
+        //   "prefix": "/dashboard"
+        // }, (router) {
+        //
+        // });
+        router.add(NotFoundPage.path).unknownRoute();
+        router.add(NoteDetailPage.path);
+      },
+    );

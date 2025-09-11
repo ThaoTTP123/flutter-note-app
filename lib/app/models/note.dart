@@ -1,7 +1,7 @@
 import 'package:nylo_framework/nylo_framework.dart';
 
 class Note extends Model {
-  static StorageKey key = "note";
+  static const StorageKey key = 'key';
   int? id;
   String title;
   String content;
