@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_app/app/controllers/note_controller.dart';
 import 'package:flutter_app/resources/pages/note_detail_page.dart';
 import 'package:flutter_app/resources/widgets/note_card_widget.dart';
@@ -17,12 +20,33 @@ class _NotesPageState extends NyState<NotesPage> {
   List<Note> _filteredNotes = [];
   LayoutMode _layoutMode = LayoutMode.list;
   final TextEditingController _searchController = TextEditingController();
-  // NEW: Track selected notes
-  Set<int> _selectedNoteIds = {};
+  final ScrollController _scrollController = ScrollController();
+  bool _isFabVisible = true;
+  Timer? _fabTimer;
   @override
   void initState() {
     super.initState();
     boot();
+    _scrollController.addListener(() {
+      if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.reverse) {
+        if (_isFabVisible) {
+          setState(() => _isFabVisible = false);
+        }
+        _fabTimer?.cancel();
+        _fabTimer = Timer(const Duration(seconds: 2), () {
+          if (!_isFabVisible) {
+            setState(() => _isFabVisible = true);
+          }
+        });
+      } else if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.forward) {
+        if (!_isFabVisible) {
+          setState(() => _isFabVisible = true);
+          _fabTimer?.cancel();
+        }
+      }
+    });
   }
 
   boot() async {
@@ -69,16 +93,6 @@ class _NotesPageState extends NyState<NotesPage> {
     await widget.controller.setLayoutMode(newMode);
   }
 
-  // NEW: Delete selected notes
-  Future<void> _deleteSelectedNotes() async {
-    if (_selectedNoteIds.isEmpty) return;
-
-    for (var id in _selectedNoteIds) {
-      await widget.controller.deleteNote(id);
-    }
-    await _loadNotes();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,39 +122,57 @@ class _NotesPageState extends NyState<NotesPage> {
           ),
         ),
       ),
-      body: _filteredNotes.isEmpty
-          ? const Center(child: Text("No notes yet"))
-          : _layoutMode == LayoutMode.grid
-              ? GridView.builder(
-                  padding: const EdgeInsets.all(8),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
-                  itemCount: _filteredNotes.length,
-                  itemBuilder: (_, i) => NoteCard(
-                    note: _filteredNotes[i],
-                    onTap: () => _navigateToDetail(_filteredNotes[i]),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: _filteredNotes.length,
-                  itemBuilder: (_, i) => ListTile(
-                    title: Text(_filteredNotes[i].title),
-                    subtitle: Text(
-                      _filteredNotes[i].content,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: _filteredNotes.isEmpty
+            ? const Center(child: Text("No notes yet"))
+            : _layoutMode == LayoutMode.grid
+                ? Scrollbar(
+                    controller: _scrollController,
+                    radius: const Radius.circular(10),
+                    child: GridView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(8),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.65,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                      ),
+                      itemCount: _filteredNotes.length,
+                      itemBuilder: (_, i) => NoteCard(
+                        note: _filteredNotes[i],
+                        onTap: () => _navigateToDetail(_filteredNotes[i]),
+                        layout: _layoutMode,
+                      ),
                     ),
-                    onTap: () => _navigateToDetail(_filteredNotes[i]),
+                  )
+                : Scrollbar(
+                    controller: _scrollController,
+                    radius: const Radius.circular(10),
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      itemCount: _filteredNotes.length,
+                      itemBuilder: (_, i) => NoteCard(
+                        note: _filteredNotes[i],
+                        onTap: () => _navigateToDetail(_filteredNotes[i]),
+                        layout: _layoutMode,
+                      ),
+                    ),
                   ),
-                ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToDetail(),
-        child: const Icon(Icons.add),
       ),
+      floatingActionButton: _isFabVisible
+          ? FloatingActionButton.small(
+              onPressed: () => _navigateToDetail(),
+              backgroundColor: Colors.white,
+              shape: CircleBorder(),
+              child: const Icon(
+                Icons.edit_note,
+                color: Colors.blue,
+              ),
+            )
+          : null,
     );
   }
 }
