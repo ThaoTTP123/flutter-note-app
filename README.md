@@ -28,6 +28,8 @@ This project was developed as part of a Flutter internship assignment.
 
 - Clean and consistent design
 - Empty state support for better user experience
+- Light and Dark theme
+- Long Press on note card show multiple deletion
 
 ---
 
