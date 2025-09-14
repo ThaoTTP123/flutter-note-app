@@ -66,11 +66,11 @@ class _NoteDetailPageState extends NyState<NoteDetailPage> {
     if (!_isNew && _note?.id != null) {
       showTopConfirmDialog(
         context,
-        message: "Chuyển 1 ghi chú vào thùng rác",
+        message: "Xác nhận xóa ghi chú này?",
         cancelText: 'Thoát',
-        confirmText: 'Chuyển vào thùng rác',
+        confirmText: 'Xóa',
         onConfirm: () async {
-          await widget.controller.deleteNotes([_note!.id!]);
+          await widget.controller.deleteNotes([_note!.id]);
           if (mounted) Navigator.pop(context);
         },
       );
