@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/app/controllers/note_controller.dart';
+import 'package:flutter_app/config/top_dialog_styles.dart';
 import 'package:nylo_framework/nylo_framework.dart';
 import '../../app/models/note.dart';
 
@@ -26,7 +27,14 @@ class _NoteDetailPageState extends NyState<NoteDetailPage> {
   Future<void> _saveNote() async {
     final title = _titleController.text.trim();
     final content = _contentController.text.trim();
-    if (title.isEmpty && content.isEmpty) return;
+    if (title.isEmpty) {
+      // Show an error or toast
+      showToastOops(
+        title: "Note saved failed",
+        description: "Please enter a title for your note.",
+      );
+      return;
+    }
 
     final newNote = Note(
       id: _note?.id,
@@ -45,9 +53,17 @@ class _NoteDetailPageState extends NyState<NoteDetailPage> {
 
   Future<void> _deleteNote() async {
     if (!_isNew && _note?.id != null) {
-      await widget.controller.deleteNotes([_note!.id!]);
+      showTopConfirmDialog(
+        context,
+        message: "Chuyển 1 ghi chú vào thùng rác",
+        cancelText: 'Thoát',
+        confirmText: 'Chuyển vào thùng rác',
+        onConfirm: () async {
+          await widget.controller.deleteNotes([_note!.id!]);
+          if (mounted) Navigator.pop(context);
+        },
+      );
     }
-    if (mounted) Navigator.pop(context);
   }
 
   @override

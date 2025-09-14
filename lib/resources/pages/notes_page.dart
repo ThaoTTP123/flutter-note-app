@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_app/app/controllers/note_controller.dart';
+import 'package:flutter_app/config/top_dialog_styles.dart';
 import 'package:flutter_app/resources/pages/note_detail_page.dart';
 import 'package:flutter_app/resources/widgets/note_card_widget.dart';
+import 'package:intl/intl.dart';
 import 'package:nylo_framework/nylo_framework.dart';
 import '../../app/models/note.dart';
 import '../../app/storage/note_storage_service.dart';
@@ -150,7 +152,7 @@ class _NotesPageState extends NyState<NotesPage> {
   }
 
   String _formatDate(DateTime date) {
-    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    return DateFormat('yyyy-MM-dd').format(date);
   }
 
   @override
@@ -175,7 +177,18 @@ class _NotesPageState extends NyState<NotesPage> {
                     const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.delete),
-                      onPressed: deleteSelected,
+                      onPressed: () {
+                        showTopConfirmDialog(
+                          context,
+                          message:
+                              "Chuyển ${_selectedNotes.length} ghi chú vào thùng rác",
+                          cancelText: 'Thoát',
+                          confirmText: 'Chuyển vào thùng rác',
+                          onConfirm: () async {
+                            deleteSelected();
+                          },
+                        );
+                      },
                     ),
                     IconButton(
                       icon: const Icon(Icons.close),
@@ -272,9 +285,7 @@ class _NotesPageState extends NyState<NotesPage> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                !_filteredNotes[i].title.isEmpty
-                                    ? _filteredNotes[i].title
-                                    : 'Note created day ${_filteredNotes[i].createdAt.day}-${_filteredNotes[i].createdAt.month}',
+                                _filteredNotes[i].title,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,

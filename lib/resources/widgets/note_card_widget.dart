@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/app/storage/note_storage_service.dart';
+import 'package:intl/intl.dart';
 import '../../app/models/note.dart';
 
 class NoteCard extends StatelessWidget {
@@ -17,7 +18,7 @@ class NoteCard extends StatelessWidget {
   });
 
   String _formatDate(DateTime date) {
-    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    return DateFormat('yyyy-MM-dd').format(date);
   }
 
   @override
