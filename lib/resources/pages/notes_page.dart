@@ -149,6 +149,10 @@ class _NotesPageState extends NyState<NotesPage> {
     });
   }
 
+  String _formatDate(DateTime date) {
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -280,7 +284,7 @@ class _NotesPageState extends NyState<NotesPage> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                _filteredNotes[i].createdAt.toDateStringUS()!,
+                                _formatDate(_filteredNotes[i].createdAt),
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context)
                                     .textTheme
