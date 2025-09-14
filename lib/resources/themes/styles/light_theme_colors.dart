@@ -21,9 +21,9 @@ class LightThemeColors implements ColorStyles {
 
   // app bar
   @override
-  Color get appBarBackground => Colors.blue;
+  Color get appBarBackground => Colors.white;
   @override
-  Color get appBarPrimaryContent => Colors.white;
+  Color get appBarPrimaryContent => Colors.black;
 
   // buttons
   @override
@@ -43,7 +43,8 @@ class LightThemeColors implements ColorStyles {
 
   // bottom tab bar - icons
   @override
-  Color get bottomTabBarIconSelected => Colors.blue;
+  Color get bottomTabBarIconSelected =>
+      const Color.fromARGB(255, 246, 208, 176);
   @override
   Color get bottomTabBarIconUnselected => Colors.black54;
 
@@ -56,4 +57,7 @@ class LightThemeColors implements ColorStyles {
   // toast notification
   @override
   Color get toastNotificationBackground => Colors.white;
+  // card background
+  @override
+  Color get cardBackground => Colors.white;
 }

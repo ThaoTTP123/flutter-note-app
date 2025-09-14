@@ -10,12 +10,12 @@ class DarkThemeColors implements ColorStyles {
   Color get background => const Color(0xff161c20);
 
   @override
-  Color get content => const Color(0xFFE1E1E1);
+  Color get content => const Color.fromARGB(255, 255, 255, 255);
   @override
   Color get primaryAccent => const Color(0xffa0baff);
 
   @override
-  Color get surfaceBackground => Colors.white70;
+  Color get surfaceBackground => const Color(0xFF343A40);
   @override
   Color get surfaceContent => Colors.black;
 

@@ -48,7 +48,7 @@ ThemeData darkTheme(ColorStyles color) {
     ),
     appBarTheme: AppBarTheme(
         surfaceTintColor: Colors.transparent,
-        backgroundColor: color.appBarBackground,
+        backgroundColor: color.background,
         titleTextStyle:
             darkTheme.titleLarge!.copyWith(color: color.appBarPrimaryContent),
         iconTheme: IconThemeData(color: color.appBarPrimaryContent),
@@ -80,6 +80,39 @@ ThemeData darkTheme(ColorStyles color) {
       primary: color.primaryAccent,
       onSurface: Colors.black,
     ),
+    cardTheme: CardThemeData(
+      color: color.surfaceBackground,
+      surfaceTintColor: Colors.transparent,
+    ),
+    checkboxTheme: CheckboxThemeData(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10), // rounded corners
+      ),
+      side: const BorderSide(
+          width: 1.5, color: Colors.grey), // border color when unchecked
+      fillColor: WidgetStateProperty.resolveWith<Color?>(
+        (states) {
+          if (states.contains(WidgetState.selected)) {
+            return color.primaryAccent; // background when selected
+          }
+          return const Color.fromARGB(
+              255, 224, 224, 224); // background when unselected
+        },
+      ),
+      checkColor: WidgetStateProperty.all(Colors.white), // tick color
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      labelStyle: TextStyle(color: color.content), // label text
+      hintStyle: TextStyle(color: color.content.withOpacity(0.7)), // hint text
+      prefixIconColor: color.content, // icon color
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: color.surfaceBackground,
+      foregroundColor: color.primaryAccent,
+    ),
   );
 }
 
@@ -91,11 +124,13 @@ TextTheme _textTheme(ColorStyles colors) {
       .apply(displayColor: colors.content, bodyColor: colors.content);
   return textTheme.copyWith(
       titleLarge:
-          TextStyle(color: colors.content.withAlpha((255.0 * 0.8).round())),
+          TextStyle(color: colors.content.withAlpha((255.0 * 1).round())),
+      titleMedium:
+          TextStyle(color: colors.content.withAlpha((255.0 * 1).round())),
       labelLarge:
-          TextStyle(color: colors.content.withAlpha((255.0 * 0.8).round())),
+          TextStyle(color: colors.content.withAlpha((255.0 * 1).round())),
       bodySmall:
-          TextStyle(color: colors.content.withAlpha((255.0 * 0.8).round())),
+          TextStyle(color: colors.content.withAlpha((255.0 * 1).round())),
       bodyMedium:
-          TextStyle(color: colors.content.withAlpha((255.0 * 0.8).round())));
+          TextStyle(color: colors.content.withAlpha((255.0 * 1).round())));
 }

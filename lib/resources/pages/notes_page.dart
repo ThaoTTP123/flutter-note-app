@@ -17,6 +17,7 @@ class NotesPage extends NyStatefulWidget<NoteController> {
 
 class _NotesPageState extends NyState<NotesPage> {
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   List<Note> _notes = [];
   List<Note> _filteredNotes = [];
@@ -52,6 +53,14 @@ class _NotesPageState extends NyState<NotesPage> {
     });
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose(); // clean up
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   boot() async {
     await _loadNotes();
     await _loadLayout();
@@ -85,6 +94,7 @@ class _NotesPageState extends NyState<NotesPage> {
   }
 
   void _navigateToDetail([Note? note]) async {
+    _searchFocusNode.unfocus();
     await routeTo(NoteDetailPage.path, data: note);
     await _loadNotes();
   }
@@ -100,6 +110,9 @@ class _NotesPageState extends NyState<NotesPage> {
   void toggleSelectionMode() {
     setState(() {
       _selectionMode = !_selectionMode;
+      if (!_selectionMode) {
+        _selectedNotes.clear();
+      }
     });
   }
 
@@ -138,179 +151,196 @@ class _NotesPageState extends NyState<NotesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: !_selectionMode
-            ? const Text("Notes")
-            : Row(
-                children: [
-                  Checkbox(
-                    value: _selectedNotes.length == _filteredNotes.length &&
-                        _filteredNotes.isNotEmpty,
-                    onChanged: toggleSelectAll,
-                  ),
-                  const SizedBox(width: 8),
-                  Text("${_selectedNotes.length} selected"),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: deleteSelected,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: toggleSelectionMode,
-                  ),
-                ],
-              ),
-        actions: !_selectionMode
-            ? [
-                IconButton(
-                  icon: Icon(
-                    _layoutMode == LayoutMode.grid
-                        ? Icons.list
-                        : Icons.grid_view,
-                  ),
-                  onPressed: _toggleLayout,
+    return GestureDetector(
+      onTap: () =>
+          FocusScope.of(context).unfocus(), // dismiss keyboard & stop focus,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: !_selectionMode
+              ? const Text("Notes")
+              : Row(
+                  children: [
+                    Checkbox(
+                      value: _selectedNotes.length == _filteredNotes.length &&
+                          _filteredNotes.isNotEmpty,
+                      onChanged: toggleSelectAll,
+                    ),
+                    const SizedBox(width: 8),
+                    Text("${_selectedNotes.length} selected"),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: deleteSelected,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: toggleSelectionMode,
+                    ),
+                  ],
                 ),
-              ]
-            : null,
-        bottom: !_selectionMode
-            ? PreferredSize(
-                preferredSize: const Size.fromHeight(56),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: "Search notes...",
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
+          actions: !_selectionMode
+              ? [
+                  IconButton(
+                    icon: Icon(
+                      _layoutMode == LayoutMode.grid
+                          ? Icons.list
+                          : Icons.grid_view,
+                    ),
+                    onPressed: _toggleLayout,
+                  ),
+                ]
+              : null,
+          bottom: !_selectionMode
+              ? PreferredSize(
+                  preferredSize: const Size.fromHeight(56),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      focusNode: _searchFocusNode,
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: "Search notes...",
+                        hintStyle: const TextStyle(
+                          color: Colors.grey,
+                        ),
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
-                ),
-              )
-            : null,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: _filteredNotes.isEmpty
-            ? const Center(child: Text("No notes yet"))
-            : _layoutMode == LayoutMode.grid
-                ? Scrollbar(
-                    controller: _scrollController,
-                    radius: const Radius.circular(10),
-                    child: GridView.builder(
+                )
+              : null,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: _filteredNotes.isEmpty
+              ? const Center(child: Text("No notes yet"))
+              : _layoutMode == LayoutMode.grid
+                  ? Scrollbar(
                       controller: _scrollController,
-                      padding: const EdgeInsets.all(8),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.65,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
-                      itemCount: _filteredNotes.length,
-                      itemBuilder: (_, i) => SizedBox(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Stack(children: [
-                                NoteCard(
-                                  note: _filteredNotes[i],
-                                  onTap: () => !_selectionMode
-                                      ? _navigateToDetail(_filteredNotes[i])
-                                      : toggleSelection(i),
-                                  layout: _layoutMode,
-                                  onLongPress: toggleSelectionMode,
-                                ),
-                                if (_selectionMode)
-                                  Positioned(
-                                    top: 8,
-                                    right: 8,
-                                    child: Checkbox(
-                                      value: _selectedNotes
-                                          .contains(_filteredNotes[i].id),
-                                      onChanged: (val) {
-                                        toggleSelection(i);
-                                      },
+                      radius: const Radius.circular(10),
+                      child: GridView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(8),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.65,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
+                        itemCount: _filteredNotes.length,
+                        itemBuilder: (_, i) => SizedBox(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Stack(children: [
+                                  NoteCard(
+                                    note: _filteredNotes[i],
+                                    onTap: () => !_selectionMode
+                                        ? _navigateToDetail(_filteredNotes[i])
+                                        : toggleSelection(i),
+                                    layout: _layoutMode,
+                                    onLongPress: () {
+                                      if (!_selectionMode)
+                                        toggleSelectionMode();
+                                      // Select this card
+                                      toggleSelection(i);
+                                    },
+                                  ),
+                                  if (_selectionMode)
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: Checkbox(
+                                        value: _selectedNotes
+                                            .contains(_filteredNotes[i].id),
+                                        onChanged: (val) {
+                                          toggleSelection(i);
+                                        },
+                                      ),
                                     ),
-                                  ),
-                              ]),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              !_filteredNotes[i].title.isEmpty
-                                  ? _filteredNotes[i].title
-                                  : 'Note created day ${_filteredNotes[i].createdAt.day}-${_filteredNotes[i].createdAt.month}',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                                ]),
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              const SizedBox(height: 6),
+                              Text(
+                                !_filteredNotes[i].title.isEmpty
+                                    ? _filteredNotes[i].title
+                                    : 'Note created day ${_filteredNotes[i].createdAt.day}-${_filteredNotes[i].createdAt.month}',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                _filteredNotes[i].createdAt.toDateStringUS()!,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  : Scrollbar(
+                      controller: _scrollController,
+                      radius: const Radius.circular(10),
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        itemCount: _filteredNotes.length,
+                        itemBuilder: (_, i) => Stack(
+                          children: [
+                            NoteCard(
+                              note: _filteredNotes[i],
+                              onTap: () => !_selectionMode
+                                  ? _navigateToDetail(_filteredNotes[i])
+                                  : toggleSelection(i),
+                              layout: _layoutMode,
+                              onLongPress: () {
+                                if (!_selectionMode) toggleSelectionMode();
+                                // Select this card
+                                toggleSelection(i);
+                              },
                             ),
-                            Text(
-                              _filteredNotes[i].createdAt.toDateStringUS()!,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
-                            ),
+                            if (_selectionMode)
+                              Positioned(
+                                top: 0,
+                                right: 8,
+                                child: Checkbox(
+                                  value: _selectedNotes
+                                      .contains(_filteredNotes[i].id),
+                                  onChanged: (val) {
+                                    toggleSelection(i);
+                                  },
+                                ),
+                              ),
                           ],
                         ),
                       ),
                     ),
-                  )
-                : Scrollbar(
-                    controller: _scrollController,
-                    radius: const Radius.circular(10),
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      itemCount: _filteredNotes.length,
-                      itemBuilder: (_, i) => Stack(
-                        children: [
-                          NoteCard(
-                            note: _filteredNotes[i],
-                            onTap: () => !_selectionMode
-                                ? _navigateToDetail(_filteredNotes[i])
-                                : toggleSelection(i),
-                            layout: _layoutMode,
-                            onLongPress: toggleSelectionMode,
-                          ),
-                          if (_selectionMode)
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: Checkbox(
-                                value: _selectedNotes
-                                    .contains(_filteredNotes[i].id),
-                                onChanged: (val) {
-                                  toggleSelection(i);
-                                },
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
+        ),
+        floatingActionButton: (!_selectionMode && _isFabVisible)
+            ? FloatingActionButton.small(
+                onPressed: () => _navigateToDetail(),
+                shape: CircleBorder(),
+                child: const Icon(
+                  Icons.add,
+                ),
+              )
+            : null,
       ),
-      floatingActionButton: (!_selectionMode && _isFabVisible)
-          ? FloatingActionButton.small(
-              onPressed: () => _navigateToDetail(),
-              backgroundColor: Colors.white,
-              shape: CircleBorder(),
-              child: const Icon(
-                Icons.edit_note,
-                color: Colors.blue,
-              ),
-            )
-          : null,
     );
   }
 }

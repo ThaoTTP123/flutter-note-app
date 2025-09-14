@@ -22,49 +22,51 @@ class NoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final createdAt = note.createdAt;
-    final dateText = _formatDate(createdAt);
-
     if (layout == LayoutMode.list) {
       // 📋 List style
-      return Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: ListTile(
-          contentPadding: const EdgeInsets.all(16),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              !note.title.isEmpty
-                  ? Text(
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: InkWell(
+            onTap: onTap,
+            onLongPress: onLongPress,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              width: double.infinity, // makes the card full width
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (note.title.isNotEmpty)
+                    Text(
                       note.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    )
-                  : SizedBox(),
-              Text(
-                dateText,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
+                  Text(
+                    _formatDate(note.createdAt),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    note.content,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    maxLines: 6,
+                  ),
+                ],
               ),
-              SizedBox(
-                height: 8,
-              ),
-            ],
+            ),
           ),
-          subtitle: Text(
-            note.content,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          onTap: onTap,
-          onLongPress: onLongPress,
         ),
       );
     }

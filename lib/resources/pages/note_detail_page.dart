@@ -85,6 +85,7 @@ class _NoteDetailPageState extends NyState<NoteDetailPage> {
                 decoration: const InputDecoration(
                   hintText: "Title (max 120 chars)",
                 ),
+                style: Theme.of(context).textTheme.titleMedium,
                 maxLength: 120,
               ),
               const SizedBox(height: 8),
@@ -95,6 +96,7 @@ class _NoteDetailPageState extends NyState<NoteDetailPage> {
                     hintText: "Write your note...",
                     border: InputBorder.none,
                   ),
+                  style: Theme.of(context).textTheme.bodyMedium,
                   maxLines: null,
                   expands: true,
                 ),

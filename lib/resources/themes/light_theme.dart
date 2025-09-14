@@ -24,7 +24,7 @@ ThemeData lightTheme(ColorStyles color) {
     dividerTheme: DividerThemeData(color: Colors.grey[100]),
     appBarTheme: AppBarTheme(
       surfaceTintColor: Colors.transparent,
-      backgroundColor: color.appBarBackground,
+      backgroundColor: color.background,
       titleTextStyle:
           lightTheme.titleLarge!.copyWith(color: color.appBarPrimaryContent),
       iconTheme: IconThemeData(color: color.appBarPrimaryContent),
@@ -57,6 +57,30 @@ ThemeData lightTheme(ColorStyles color) {
       surface: color.background,
       onSecondary: Colors.white,
       primary: color.primaryAccent,
+    ),
+    cardTheme: CardThemeData(
+      color: color.surfaceBackground,
+      surfaceTintColor: Colors.transparent,
+    ),
+    checkboxTheme: CheckboxThemeData(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10), // rounded corners
+      ),
+      side: const BorderSide(
+          width: 1.5, color: Colors.grey), // border color when unchecked
+      fillColor: WidgetStateProperty.resolveWith<Color?>(
+        (states) {
+          if (states.contains(WidgetState.selected)) {
+            return color.primaryAccent; // background when selected
+          }
+          return Colors.white; // background when unselected
+        },
+      ),
+      checkColor: WidgetStateProperty.all(Colors.white), // tick color
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: Colors.white,
+      foregroundColor: color.primaryAccent,
     ),
   );
 }
