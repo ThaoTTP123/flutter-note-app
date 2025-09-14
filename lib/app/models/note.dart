@@ -1,20 +1,23 @@
+import 'package:flutter_app/config/keys.dart';
 import 'package:nylo_framework/nylo_framework.dart';
+import 'package:uuid/uuid.dart';
 
 class Note extends Model {
-  static const StorageKey key = 'key';
-  int? id;
+  static StorageKey key = Keys.note;
+  String id;
   String title;
   String content;
   DateTime createdAt;
   DateTime updatedAt;
 
   Note({
-    this.id,
+    String? id,
     required this.title,
     this.content = '',
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : createdAt = createdAt ?? DateTime.now(),
+  })  : id = id ?? const Uuid().v4(),
+        createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
         super(key: key);
 

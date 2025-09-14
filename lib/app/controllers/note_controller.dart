@@ -10,7 +10,8 @@ class NoteController extends Controller {
   Future<List<Note>> fetchNotes() => _noteStorageService.getAllNotes();
   Future<void> addNote(Note note) => _noteStorageService.addNote(note);
   Future<void> updateNote(Note note) => _noteStorageService.updateNote(note);
-  Future<void> deleteNote(int id) => _noteStorageService.deleteNote(id);
+  Future<void> deleteNotes(List<String> ids) =>
+      _noteStorageService.deleteNotes(ids);
   Future<List<Note>> searchNotes(String keyword) =>
       _noteStorageService.searchNotes(keyword);
   Future<List<Note>> filterNotes(bool Function(Note) condition) =>

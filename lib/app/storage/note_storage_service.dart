@@ -1,11 +1,10 @@
+import 'package:flutter_app/config/keys.dart';
 import 'package:nylo_framework/nylo_framework.dart';
 import '../models/note.dart';
 
 enum LayoutMode { list, grid }
 
 class NoteStorageService {
-  static const String _layoutKey = "layout_mode";
-
   /// Lấy tất cả ghi chú
   Future<List<Note>> getAllNotes() async {
     final notesJson = await NyStorage.readCollection(Note.key);
@@ -14,10 +13,7 @@ class NoteStorageService {
 
   /// Thêm mới ghi chú
   Future<void> addNote(Note note) async {
-    final notes = await getAllNotes();
-    final newId = notes.isEmpty ? 1 : (notes.last.id ?? 0) + 1;
-    final noteWithId = note..id = note.id ?? newId;
-    await NyStorage.addToCollection(Note.key, item: noteWithId.toJson());
+    await NyStorage.addToCollection(Note.key, item: note.toJson());
   }
 
   /// Cập nhật ghi chú theo id
@@ -30,10 +26,10 @@ class NoteStorageService {
     }
   }
 
-  /// Xóa ghi chú theo id
-  Future<void> deleteNote(int id) async {
+  /// Xóa nhiều ghi chú theo danh sách ids
+  Future<void> deleteNotes(List<String> ids) async {
     final notesJson = await NyStorage.readCollection(Note.key);
-    notesJson.removeWhere((item) => item['id'] == id);
+    notesJson.removeWhere((item) => ids.contains(item['id']));
     await NyStorage.saveCollection(Note.key, notesJson);
   }
 
@@ -60,11 +56,12 @@ class NoteStorageService {
 
   /// Layout Mode (Grid/List)
   Future<LayoutMode> getLayoutMode() async {
-    final mode = await NyStorage.read(_layoutKey, defaultValue: "list");
+    final mode = await NyStorage.read(Keys.layout, defaultValue: "list");
     return mode == "grid" ? LayoutMode.grid : LayoutMode.list;
   }
 
   Future<void> setLayoutMode(LayoutMode mode) async {
-    await NyStorage.save(_layoutKey, mode == LayoutMode.grid ? "grid" : "list");
+    await NyStorage.save(
+        Keys.layout, mode == LayoutMode.grid ? "grid" : "list");
   }
 }

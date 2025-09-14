@@ -26,4 +26,6 @@ class Keys {
   // static StorageKey coins = 'SK_COINS';
 
   /// Add your storage keys here...
+  static StorageKey note = 'NOTE_STORAGE_KEY';
+  static StorageKey layout = 'LAYOUT_MODE';
 }

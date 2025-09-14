@@ -45,7 +45,7 @@ class _NoteDetailPageState extends NyState<NoteDetailPage> {
 
   Future<void> _deleteNote() async {
     if (!_isNew && _note?.id != null) {
-      await widget.controller.deleteNote(_note!.id!);
+      await widget.controller.deleteNotes([_note!.id!]);
     }
     if (mounted) Navigator.pop(context);
   }
