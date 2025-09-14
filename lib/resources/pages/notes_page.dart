@@ -164,7 +164,7 @@ class _NotesPageState extends NyState<NotesPage> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: !_selectionMode
-              ? const Text("Notes")
+              ? const Text("Ghi chú")
               : Row(
                   children: [
                     Checkbox(
@@ -173,7 +173,10 @@ class _NotesPageState extends NyState<NotesPage> {
                       onChanged: toggleSelectAll,
                     ),
                     const SizedBox(width: 8),
-                    Text("${_selectedNotes.length} selected"),
+                    Text(
+                      "Đã chọn ${_selectedNotes.length}",
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.delete),
@@ -181,9 +184,9 @@ class _NotesPageState extends NyState<NotesPage> {
                         showTopConfirmDialog(
                           context,
                           message:
-                              "Chuyển ${_selectedNotes.length} ghi chú vào thùng rác",
+                              "Xác nhận xóa ${_selectedNotes.length} ghi chú?",
                           cancelText: 'Thoát',
-                          confirmText: 'Chuyển vào thùng rác',
+                          confirmText: 'Xóa',
                           onConfirm: () async {
                             deleteSelected();
                           },
@@ -217,7 +220,7 @@ class _NotesPageState extends NyState<NotesPage> {
                       focusNode: _searchFocusNode,
                       controller: _searchController,
                       decoration: InputDecoration(
-                        hintText: "Search notes...",
+                        hintText: "Tìm kiếm...",
                         hintStyle: const TextStyle(
                           color: Colors.grey,
                         ),
@@ -234,7 +237,7 @@ class _NotesPageState extends NyState<NotesPage> {
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: _filteredNotes.isEmpty
-              ? const Center(child: Text("No notes yet"))
+              ? const Center(child: Text("Không có ghi chú nào"))
               : _layoutMode == LayoutMode.grid
                   ? Scrollbar(
                       controller: _scrollController,

@@ -28,7 +28,7 @@ class NoteCard extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Card(
-          elevation: 2,
+          elevation: 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -63,6 +63,7 @@ class NoteCard extends StatelessWidget {
                     note.content,
                     style: Theme.of(context).textTheme.bodyMedium,
                     maxLines: 6,
+                    overflow: TextOverflow.fade,
                   ),
                 ],
               ),
@@ -76,7 +77,7 @@ class NoteCard extends StatelessWidget {
     return AspectRatio(
       aspectRatio: 3 / 4, // width : height
       child: Card(
-        elevation: 2,
+        elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -91,8 +92,7 @@ class NoteCard extends StatelessWidget {
             padding: const EdgeInsets.all(12.0),
             child: Text(
               note.content,
-              maxLines: 6,
-              overflow: TextOverflow.ellipsis,
+              overflow: TextOverflow.fade,
             ),
           ),
         ),

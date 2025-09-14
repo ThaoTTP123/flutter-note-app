@@ -27,11 +27,21 @@ class _NoteDetailPageState extends NyState<NoteDetailPage> {
   Future<void> _saveNote() async {
     final title = _titleController.text.trim();
     final content = _contentController.text.trim();
+    if (title.isEmpty && content.isEmpty) {
+      Navigator.pop(context);
+      return;
+    }
     if (title.isEmpty) {
       // Show an error or toast
-      showToastOops(
-        title: "Note saved failed",
-        description: "Please enter a title for your note.",
+      showTopConfirmDialog(
+        context,
+        message:
+            "Ghi chú này sẽ không được lưu do chưa có tiêu đề, bạn chắc chắn muốn quay lại?",
+        cancelText: 'Hủy',
+        confirmText: 'Quay lại',
+        onConfirm: () async {
+          Navigator.pop(context);
+        },
       );
       return;
     }
@@ -49,6 +59,7 @@ class _NoteDetailPageState extends NyState<NoteDetailPage> {
     } else {
       await widget.controller.updateNote(newNote);
     }
+    Navigator.pop(context);
   }
 
   Future<void> _deleteNote() async {
@@ -78,12 +89,14 @@ class _NoteDetailPageState extends NyState<NoteDetailPage> {
     return WillPopScope(
       onWillPop: () async {
         await _saveNote();
-        Navigator.pop(context);
         return false;
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_isNew ? "New Note" : "Edit Note"),
+          title: Text(
+            _isNew ? "Tạo ghi chú mới" : "Sửa ghi chú",
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           actions: [
             if (!_isNew)
               IconButton(
@@ -99,7 +112,7 @@ class _NoteDetailPageState extends NyState<NoteDetailPage> {
               TextField(
                 controller: _titleController,
                 decoration: const InputDecoration(
-                  hintText: "Title (max 120 chars)",
+                  hintText: "Tiêu đề",
                 ),
                 style: Theme.of(context).textTheme.titleMedium,
                 maxLength: 120,
@@ -109,7 +122,7 @@ class _NoteDetailPageState extends NyState<NoteDetailPage> {
                 child: TextField(
                   controller: _contentController,
                   decoration: const InputDecoration(
-                    hintText: "Write your note...",
+                    hintText: "Viết ghi chú...",
                     border: InputBorder.none,
                   ),
                   style: Theme.of(context).textTheme.bodyMedium,
